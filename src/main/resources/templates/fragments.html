@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${title} + ' | Claim Surveyor'">Claim Surveyor</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
+
 <body>
-<header th:fragment="nav" class="topbar">
-    <a th:href="@{/}" class="brand" id="nav-home">Claim Surveyor Assignment System</a>
-    <nav>
-        <a th:href="@{/claims/new}" id="nav-new-claim">Submit Claim</a>
-        <a th:href="@{/claims}" id="nav-claims">All Claims</a>
-        <a th:href="@{/track}" id="nav-track">Track Claim</a>
-    </nav>
-</header>
+    <header th:fragment="nav" class="topbar">
+        <a th:href="@{/}" class="brand" id="nav-home">Claim Surveyor Assignment System</a>
+        <nav>
+            <a th:href="@{/claims/new}" id="nav-new-claim">Submit Claim</a>
+            <a th:href="@{/claims}" id="nav-claims">All Claims</a>
+            <a th:href="@{/review}" id="nav-review">Review Queue</a>
+            <a th:href="@{/track}" id="nav-track">Track Claim</a>
+        </nav>
+    </header>
 </body>
+
 </html>
