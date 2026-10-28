@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Track Claim')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+    <style>
+        .steps { list-style: none; padding: 0; margin: 20px 0; display: flex; gap: 8px; }
+        .steps li { flex: 1; padding: 12px; text-align: center; border-radius: 6px; background: #e4e7eb; color: #52606d; }
+        .steps li.done { background: #12355b; color: #fff; }
+    </style>
+    <h1>Track your claim</h1>
+    <form th:action="@{/track}" method="get" id="track-form">
+        <label for="claimNumber">Claim number</label>
+        <input type="text" id="claimNumber" name="claimNumber" th:value="${claimNumber}" placeholder="CLM-2026-00001">
+        <p><button type="submit" class="btn" id="track-claim">Track</button></p>
+    </form>
+
+    <p class="error" id="track-not-found" th:if="${notFound}">No claim found with that number. Please check it and try again.</p>
+
+    <div th:if="${claim != null}" id="track-result">
+        <h2>Claim <span id="track-number" th:text="${claim.claimNumber}">CLM-2026-00001</span></h2>
+        <p>Current status:
+            <span class="badge" id="track-status" th:classappend="${claim.status.name()}" th:text="${claim.status.label}">Submitted</span>
+        </p>
+        <ol class="steps">
+            <li th:classappend="${stage >= 1} ? 'done'">Submitted</li>
+            <li th:classappend="${stage >= 2} ? 'done'">Under review</li>
+            <li th:classappend="${stage >= 3} ? 'done'" th:text="${stage == 3} ? ${claim.status.label} : 'Decision'">Decision</li>
+        </ol>
+        <p class="muted">Submitted on <span th:text="${#temporals.format(claim.createdAt, 'dd MMM yyyy HH:mm')}"></span></p>
+    </div>
+</main>
+</body>
+</html>
