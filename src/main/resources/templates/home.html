@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Home')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+    <h1>Claim Surveyor Assignment System</h1>
+    <p>Submit an insurance claim, track its status and get a surveyor assigned.</p>
+    <p>
+        <a class="btn" th:href="@{/claims/new}" id="home-submit">Submit a claim</a>
+        <a class="btn secondary" th:href="@{/claims}" id="home-list">View claims</a>
+    </p>
+    <p class="muted">Environment: <span id="env" th:text="${environment}">dev</span></p>
+</main>
+</body>
+</html>
