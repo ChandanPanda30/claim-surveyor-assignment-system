@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Submit Claim')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+    <h1>Submit a claim</h1>
+    <form th:action="@{/claims}" th:object="${claimForm}" method="post" id="claim-form" novalidate>
+
+        <label for="policyNumber">Policy number</label>
+        <input type="text" id="policyNumber" th:field="*{policyNumber}" placeholder="POL-123456">
+        <div class="error" id="policyNumber-error" th:if="${#fields.hasErrors('policyNumber')}" th:errors="*{policyNumber}"></div>
+
+        <label for="claimantName">Claimant name</label>
+        <input type="text" id="claimantName" th:field="*{claimantName}">
+        <div class="error" id="claimantName-error" th:if="${#fields.hasErrors('claimantName')}" th:errors="*{claimantName}"></div>
+
+        <label for="claimantEmail">Email</label>
+        <input type="email" id="claimantEmail" th:field="*{claimantEmail}">
+        <div class="error" id="claimantEmail-error" th:if="${#fields.hasErrors('claimantEmail')}" th:errors="*{claimantEmail}"></div>
+
+        <label for="claimantPhone">Mobile number</label>
+        <input type="text" id="claimantPhone" th:field="*{claimantPhone}" placeholder="9876543210">
+        <div class="error" id="claimantPhone-error" th:if="${#fields.hasErrors('claimantPhone')}" th:errors="*{claimantPhone}"></div>
+
+        <label for="claimType">Claim type</label>
+        <select id="claimType" th:field="*{claimType}">
+            <option value="">-- select --</option>
+            <option th:each="t : ${claimTypes}" th:value="${t}" th:text="${t.label}">Motor</option>
+        </select>
+        <div class="error" id="claimType-error" th:if="${#fields.hasErrors('claimType')}" th:errors="*{claimType}"></div>
+
+        <label for="incidentDate">Incident date</label>
+        <input type="date" id="incidentDate" th:field="*{incidentDate}">
+        <div class="error" id="incidentDate-error" th:if="${#fields.hasErrors('incidentDate')}" th:errors="*{incidentDate}"></div>
+
+        <label for="incidentLocation">Incident location</label>
+        <input type="text" id="incidentLocation" th:field="*{incidentLocation}">
+        <div class="error" id="incidentLocation-error" th:if="${#fields.hasErrors('incidentLocation')}" th:errors="*{incidentLocation}"></div>
+
+        <label for="estimatedLoss">Estimated loss (INR)</label>
+        <input type="number" step="0.01" id="estimatedLoss" th:field="*{estimatedLoss}">
+        <div class="error" id="estimatedLoss-error" th:if="${#fields.hasErrors('estimatedLoss')}" th:errors="*{estimatedLoss}"></div>
+
+        <label for="description">Description</label>
+        <textarea id="description" rows="4" th:field="*{description}"></textarea>
+        <div class="error" id="description-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+
+        <p><button type="submit" class="btn" id="submit-claim">Submit claim</button></p>
+    </form>
+</main>
+</body>
+</html>
