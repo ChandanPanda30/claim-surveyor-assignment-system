@@ -1,0 +1,31 @@
+# Build output
+target/
+build/
+.gradle/
+
+# Local database
+data/
+*.mv.db
+*.trace.db
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+
+# OS / logs
+.DS_Store
+Thumbs.db
+*.log
+
+# Secrets / local config
+.env
+application-local.properties
+
+# Selenium failure screenshots
+test-output/
+screenshots/
