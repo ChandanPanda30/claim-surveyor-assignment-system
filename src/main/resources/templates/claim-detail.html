@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Claim')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+    <div class="flash" id="flash-message" th:if="${message}" th:text="${message}"></div>
+    <h1>Claim <span id="claim-number" th:text="${claim.claimNumber}">CLM-2026-00001</span></h1>
+    <p>Status: <span class="badge" id="claim-status" th:classappend="${claim.status.name()}" th:text="${claim.status.label}">Submitted</span></p>
+    <dl>
+        <dt>Policy number</dt><dd th:text="${claim.policyNumber}"></dd>
+        <dt>Claimant</dt><dd th:text="${claim.claimantName}"></dd>
+        <dt>Email</dt><dd th:text="${claim.claimantEmail}"></dd>
+        <dt>Mobile</dt><dd th:text="${claim.claimantPhone}"></dd>
+        <dt>Claim type</dt><dd th:text="${claim.claimType.label}"></dd>
+        <dt>Incident date</dt><dd th:text="${claim.incidentDate}"></dd>
+        <dt>Incident location</dt><dd th:text="${claim.incidentLocation}"></dd>
+        <dt>Estimated loss (INR)</dt><dd th:text="${#numbers.formatDecimal(claim.estimatedLoss, 1, 'COMMA', 2, 'POINT')}"></dd>
+        <dt>Description</dt><dd th:text="${claim.description}"></dd>
+        <dt>Submitted at</dt><dd th:text="${#temporals.format(claim.createdAt, 'dd MMM yyyy HH:mm')}"></dd>
+    </dl>
+    <p><a class="btn secondary" th:href="@{/claims}">Back to all claims</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('All Claims')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+    <h1>All claims</h1>
+    <p th:if="${#lists.isEmpty(claims)}" id="no-claims" class="muted">No claims submitted yet.</p>
+    <table th:unless="${#lists.isEmpty(claims)}" id="claims-table">
+        <thead>
+        <tr><th>Claim no.</th><th>Claimant</th><th>Type</th><th>Loss (INR)</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${claims}">
+            <td><a th:href="@{/claims/{id}(id=${c.id})}" th:text="${c.claimNumber}">CLM-2026-00001</a></td>
+            <td th:text="${c.claimantName}">Name</td>
+            <td th:text="${c.claimType.label}">Motor</td>
+            <td th:text="${#numbers.formatDecimal(c.estimatedLoss, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+            <td><span class="badge" th:classappend="${c.status.name()}" th:text="${c.status.label}">Submitted</span></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
