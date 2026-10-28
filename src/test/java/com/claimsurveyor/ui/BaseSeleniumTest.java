@@ -39,6 +39,10 @@ abstract class BaseSeleniumTest {
             options.addArguments("--headless=new");
         }
         options.addArguments("--window-size=1366,900");
+        if (Boolean.getBoolean("selenium.noSandbox")) {
+            // Needed when Chrome runs under the Jenkins Windows service account
+            options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
+        }
         driver = new ChromeDriver(options);
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
