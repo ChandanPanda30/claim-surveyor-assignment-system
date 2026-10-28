@@ -20,6 +20,8 @@
 
     <properties>
         <java.version>21</java.version>
+        <!-- Default environment label; Jenkins overrides it: mvn package -Dapp.environment=staging -->
+        <app.environment>dev</app.environment>
     </properties>
 
     <dependencies>
