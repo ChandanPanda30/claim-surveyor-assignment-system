@@ -4,6 +4,8 @@ A small web application that lets a claimant submit an insurance claim, validate
 lets a reviewer approve or reject it, assigns a surveyor, and tracks status end to end.
 Built as the running project for a DevOps pipeline (Git/GitHub, Jenkins, Selenium, Docker, Ansible).
 
+# CI: built by Jenkins job claim-surveyor-ci
+
 ## Tech stack
 
 | Area | Choice |
