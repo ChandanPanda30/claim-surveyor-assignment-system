@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Review Queue')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main>
+    <h1>Review queue</h1>
+    <p class="muted">Claims waiting for a surveyor or a decision, oldest first.</p>
+    <p th:if="${#lists.isEmpty(claims)}" id="queue-empty" class="muted">Nothing to review right now.</p>
+    <table th:unless="${#lists.isEmpty(claims)}" id="review-table">
+        <thead>
+        <tr><th>Claim no.</th><th>Claimant</th><th>Type</th><th>Surveyor</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${claims}">
+            <td><a th:href="@{/claims/{id}(id=${c.id})}" th:text="${c.claimNumber}">CLM-2026-00001</a></td>
+            <td th:text="${c.claimantName}">Name</td>
+            <td th:text="${c.claimType.label}">Motor</td>
+            <td th:text="${c.surveyor != null} ? ${c.surveyor.name} : '-'">-</td>
+            <td><span class="badge" th:classappend="${c.status.name()}" th:text="${c.status.label}">Submitted</span></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

@@ -21,3 +21,6 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e4e7eb; }
 dl { display: grid; grid-template-columns: 200px 1fr; gap: 8px 16px; }
 dt { font-weight: 600; }
 dd { margin: 0; }
+.flash.error { background: #fee2e2; color: #7f1d1d; }
+.btn.danger { background: #b42318; }
+h2 { margin-top: 28px; font-size: 1.15em; }

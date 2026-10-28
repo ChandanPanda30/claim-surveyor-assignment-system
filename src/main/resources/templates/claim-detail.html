@@ -5,8 +5,11 @@
 <header th:replace="~{fragments :: nav}"></header>
 <main>
     <div class="flash" id="flash-message" th:if="${message}" th:text="${message}"></div>
+    <div class="flash error" id="flash-error" th:if="${error}" th:text="${error}"></div>
+
     <h1>Claim <span id="claim-number" th:text="${claim.claimNumber}">CLM-2026-00001</span></h1>
     <p>Status: <span class="badge" id="claim-status" th:classappend="${claim.status.name()}" th:text="${claim.status.label}">Submitted</span></p>
+
     <dl>
         <dt>Policy number</dt><dd th:text="${claim.policyNumber}"></dd>
         <dt>Claimant</dt><dd th:text="${claim.claimantName}"></dd>
@@ -18,7 +21,56 @@
         <dt>Estimated loss (INR)</dt><dd th:text="${#numbers.formatDecimal(claim.estimatedLoss, 1, 'COMMA', 2, 'POINT')}"></dd>
         <dt>Description</dt><dd th:text="${claim.description}"></dd>
         <dt>Submitted at</dt><dd th:text="${#temporals.format(claim.createdAt, 'dd MMM yyyy HH:mm')}"></dd>
+        <dt>Surveyor</dt>
+        <dd id="claim-surveyor">
+            <span th:if="${claim.surveyor != null}" th:text="${claim.surveyor.name + ' (' + claim.surveyor.city + ')'}"></span>
+            <span th:if="${claim.surveyor == null}" class="muted">Not assigned yet</span>
+        </dd>
+        <dt th:if="${claim.decidedAt != null}">Decision on</dt>
+        <dd th:if="${claim.decidedAt != null}" th:text="${#temporals.format(claim.decidedAt, 'dd MMM yyyy HH:mm')}"></dd>
+        <dt th:if="${claim.decisionRemarks != null}">Reviewer remarks</dt>
+        <dd id="claim-remarks" th:if="${claim.decisionRemarks != null}" th:text="${claim.decisionRemarks}"></dd>
     </dl>
+
+    <h2>Supporting documents</h2>
+    <p class="muted" id="no-documents" th:if="${#lists.isEmpty(documents)}">No documents uploaded yet.</p>
+    <ul id="document-list" th:unless="${#lists.isEmpty(documents)}">
+        <li th:each="d : ${documents}">
+            <a th:href="@{/claims/{cid}/documents/{did}(cid=${claim.id}, did=${d.id})}" th:text="${d.fileName}">file.pdf</a>
+            <span class="muted" th:text="'(' + ${d.sizeBytes / 1024} + ' KB)'"></span>
+        </li>
+    </ul>
+    <form th:if="${canUpload}" th:action="@{/claims/{id}/documents(id=${claim.id})}" method="post"
+          enctype="multipart/form-data" id="upload-form">
+        <label for="document-file">Upload a document (PDF, JPG or PNG, max 2 MB)</label>
+        <input type="file" id="document-file" name="file">
+        <p><button type="submit" class="btn secondary" id="upload-document">Upload</button></p>
+    </form>
+
+    <div th:if="${claim.status.name() == 'SUBMITTED'}">
+        <h2>Assign surveyor</h2>
+        <form th:action="@{/claims/{id}/assign(id=${claim.id})}" method="post" id="assign-form">
+            <label for="surveyorId">Surveyor</label>
+            <select id="surveyorId" name="surveyorId">
+                <option value="">Auto-assign (least loaded)</option>
+                <option th:each="s : ${surveyors}" th:value="${s.id}" th:text="${s.name + ' - ' + s.city}">Name</option>
+            </select>
+            <p><button type="submit" class="btn" id="assign-surveyor">Assign surveyor</button></p>
+        </form>
+    </div>
+
+    <div th:if="${claim.status.name() == 'UNDER_REVIEW'}">
+        <h2>Reviewer decision</h2>
+        <form th:action="@{/claims/{id}/decision(id=${claim.id})}" method="post" id="decision-form">
+            <label for="remarks">Remarks (required when rejecting)</label>
+            <textarea id="remarks" name="remarks" rows="3"></textarea>
+            <p>
+                <button type="submit" class="btn" id="approve-claim" name="decision" value="APPROVE">Approve</button>
+                <button type="submit" class="btn danger" id="reject-claim" name="decision" value="REJECT">Reject</button>
+            </p>
+        </form>
+    </div>
+
     <p><a class="btn secondary" th:href="@{/claims}">Back to all claims</a></p>
 </main>
 </body>
