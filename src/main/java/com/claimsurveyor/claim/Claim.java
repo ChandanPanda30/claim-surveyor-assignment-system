@@ -7,7 +7,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import com.claimsurveyor.surveyor.Surveyor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,6 +61,17 @@ public class Claim {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @ManyToOne
+    @JoinColumn(name = "surveyor_id")
+    private Surveyor surveyor;
+
+    private LocalDateTime assignedAt;
+
+    @Column(length = 500)
+    private String decisionRemarks;
+
+    private LocalDateTime decidedAt;
+
     protected Claim() {
         // for JPA
     }
@@ -86,6 +100,24 @@ public class Claim {
     public ClaimStatus getStatus() { return status; }
     public void setStatus(ClaimStatus status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public Surveyor getSurveyor() { return surveyor; }
+    public LocalDateTime getAssignedAt() { return assignedAt; }
+    public String getDecisionRemarks() { return decisionRemarks; }
+    public LocalDateTime getDecidedAt() { return decidedAt; }
+
+    /** Assigns a surveyor and moves the claim into review. */
+    public void assignTo(Surveyor surveyor) {
+        this.surveyor = surveyor;
+        this.assignedAt = LocalDateTime.now();
+        this.status = ClaimStatus.UNDER_REVIEW;
+    }
+
+    /** Records the reviewer's final decision. */
+    public void decide(ClaimStatus finalStatus, String remarks) {
+        this.status = finalStatus;
+        this.decisionRemarks = remarks;
+        this.decidedAt = LocalDateTime.now();
+    }
 
     /** Factory used by the service so callers cannot create a half-filled claim. */
     public static Claim create() {
