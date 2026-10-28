@@ -1,5 +1,6 @@
 // Declarative pipeline for the Claim Surveyor Assignment System (Jenkins on Windows).
-// Stages: Checkout -> Build -> Package -> Deploy -> Verify
+// Stages: Checkout -> Build -> Unit Tests -> Package -> UI Tests (Selenium) -> Deploy -> Verify
+// If any test stage fails, the pipeline stops and nothing is deployed.
 
 pipeline {
     agent any
@@ -7,8 +8,8 @@ pipeline {
     parameters {
         choice(name: 'DEPLOY_ENV', choices: ['dev', 'qa', 'staging'],
                description: 'Environment label baked into the build (shown on the home page)')
-        string(name: 'TOMCAT_HOME', defaultValue: 'C:\\Program Files\\Apache Software Foundation\\Tomcat 11.0' ,
-               description: 'Tomcat install folder (CHANGE to your real folder)')
+        string(name: 'TOMCAT_HOME', defaultValue: 'C:\\Program Files\\Apache Software Foundation\\Tomcat 11.0',
+               description: 'Tomcat install folder')
         string(name: 'TOMCAT_PORT', defaultValue: '8081',
                description: 'HTTP port Tomcat listens on')
     }
@@ -41,11 +42,33 @@ pipeline {
             }
         }
 
+        stage('Unit Tests') {
+            steps {
+                bat 'mvn -B test'
+            }
+            post {
+                always {
+                    junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
+                }
+            }
+        }
+
         stage('Package') {
             steps {
-                // Runs the unit tests, then builds the WAR with the chosen environment label
-                bat 'mvn -B package -Dapp.environment=%DEPLOY_ENV%'
+                bat 'mvn -B package -DskipTests -Dapp.environment=%DEPLOY_ENV%'
                 archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+            }
+        }
+
+        stage('UI Tests (Selenium)') {
+            steps {
+                bat 'mvn -B failsafe:integration-test failsafe:verify -Dselenium.noSandbox=true'
+            }
+            post {
+                always {
+                    junit testResults: 'target/failsafe-reports/*.xml', allowEmptyResults: true
+                    archiveArtifacts artifacts: 'target/screenshots/**', allowEmptyArchive: true
+                }
             }
         }
 
@@ -65,7 +88,7 @@ pipeline {
             steps {
                 // Tomcat unpacks the WAR by itself; wait up to ~90 s for the health check to answer
                 bat '''
-                    powershell -NoProfile -Command "$url='http://localhost:%TOMCAT_PORT%/claim-surveyor/actuator/health'; $ok=$false; for($i=0;$i -lt 30;$i++){ try { $r=Invoke-WebRequest -UseBasicParsing $url; if($r.StatusCode -eq 200){ Write-Host ('Health check OK: ' + $r.Content); $ok=$true; break } } catch { Start-Sleep -Seconds 3 } }; if(-not $ok){ Write-Host 'Application did not become healthy'; exit 1 }"
+                    powershell -NoProfile -Command "$url='http://localhost:%TOMCAT_PORT%/claim-surveyor/actuator/health'; $ok=$false; for($i=0;$i -lt 30;$i++){ try { $r=Invoke-WebRequest -UseBasicParsing $url; if($r.StatusCode -eq 200){ $c=$r.Content; if($c -is [byte[]]){ $c=[Text.Encoding]::UTF8.GetString($c) }; Write-Host ('Health check OK: ' + $c); $ok=$true; break } } catch { Start-Sleep -Seconds 3 } }; if(-not $ok){ Write-Host 'Application did not become healthy'; exit 1 }"
                 '''
             }
         }
@@ -76,7 +99,7 @@ pipeline {
             echo "Deployed to http://localhost:${params.TOMCAT_PORT}/claim-surveyor/ (environment: ${params.DEPLOY_ENV})"
         }
         failure {
-            echo 'Pipeline failed - check the stage logs above.'
+            echo 'Pipeline failed - see the failing stage. Nothing was deployed if a test stage failed.'
         }
     }
 }
