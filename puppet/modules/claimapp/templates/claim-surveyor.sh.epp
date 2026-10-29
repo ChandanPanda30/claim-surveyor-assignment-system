@@ -1,0 +1,54 @@
+<%- | String $app_user, String $base_dir | -%>
+#!/bin/sh
+# Managed by Puppet - start / stop / status for the Claim Surveyor application.
+BASE=<%= $base_dir %>
+PIDFILE=$BASE/run/claim-surveyor.pid
+LOG=$BASE/logs/claim-surveyor.log
+
+is_running() {
+  [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null
+}
+
+start_app() {
+  if is_running; then
+    echo "claim-surveyor already running"
+    return 0
+  fi
+  set -a
+  . /etc/claim-surveyor/claim-surveyor.env
+  set +a
+  setpriv --reuid=<%= $app_user %> --regid=<%= $app_user %> --init-groups \
+    java $JAVA_OPTS -jar "$BASE/current/claim-surveyor.war" \
+    < /dev/null >> "$LOG" 2>&1 &
+  echo $! > "$PIDFILE"
+  sleep 3
+  if ! is_running; then
+    echo "claim-surveyor failed to start, see $LOG"
+    return 1
+  fi
+  echo "claim-surveyor started"
+}
+
+stop_app() {
+  if is_running; then
+    kill "$(cat "$PIDFILE")"
+    i=0
+    while is_running && [ "$i" -lt 20 ]; do
+      sleep 1
+      i=$((i + 1))
+    done
+    if is_running; then
+      kill -9 "$(cat "$PIDFILE")"
+    fi
+  fi
+  rm -f "$PIDFILE"
+  echo "claim-surveyor stopped"
+}
+
+case "$1" in
+  start)   start_app ;;
+  stop)    stop_app ;;
+  restart) stop_app; start_app ;;
+  status)  is_running; exit $? ;;
+  *)       echo "usage: $0 {start|stop|restart|status}"; exit 2 ;;
+esac

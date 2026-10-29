@@ -1,0 +1,18 @@
+# A clean Linux "server" for Puppet to configure. It only contains the Puppet agent:
+# Java, the service account, folders and the application are all installed by the manifest.
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends wget ca-certificates \
+ && wget -q https://apt.puppet.com/puppet8-release-noble.deb \
+ && dpkg -i puppet8-release-noble.deb \
+ && rm puppet8-release-noble.deb \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends puppet-agent \
+ && rm -rf /var/cache/apt/archives/*
+# The apt package lists in /var/lib/apt/lists are kept on purpose so Puppet can install packages.
+
+ENV PATH=/opt/puppetlabs/bin:$PATH
+WORKDIR /puppet
+CMD ["sleep", "infinity"]

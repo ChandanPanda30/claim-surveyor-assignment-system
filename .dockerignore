@@ -1,0 +1,13 @@
+target/
+data/
+.git/
+.github/
+.idea/
+.vscode/
+*.iml
+*.log
+docs/
+Jenkinsfile
+README.md
+puppet/
+.gitattributes

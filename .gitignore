@@ -26,6 +26,9 @@ Thumbs.db
 .env
 application-local.properties
 
+# Release artifacts used by the Puppet demo (build them with puppet\build-artifacts.ps1)
+puppet/artifacts/*.war
+
 # Selenium failure screenshots
 test-output/
 screenshots/
