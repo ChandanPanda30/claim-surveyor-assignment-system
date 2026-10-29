@@ -9,5 +9,8 @@ data/
 docs/
 Jenkinsfile
 README.md
+feature/puppet-config
 puppet/
 .gitattributes
+=======
+develop
